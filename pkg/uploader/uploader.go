@@ -135,6 +135,7 @@ func (u *Uploader) upload(ctx context.Context, elem Elem) error {
 
 	_, err = message.NewSender(u.opts.Client).
 		WithUploader(up).
+		// Reply() todo
 		To(elem.To()).
 		Media(ctx, media)
 	if err != nil {

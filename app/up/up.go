@@ -2,6 +2,7 @@ package up
 
 import (
 	"context"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/go-faster/errors"
@@ -27,6 +28,7 @@ type Options struct {
 	Excludes []string
 	Remove   bool
 	Photo    bool
+	Topics   string
 }
 
 func Run(ctx context.Context, c *telegram.Client, kvd kv.KV, opts Options) (rerr error) {
@@ -44,6 +46,14 @@ func Run(ctx context.Context, c *telegram.Client, kvd kv.KV, opts Options) (rerr
 
 	manager := peers.Options{Storage: storage.NewPeers(kvd)}.Build(pool.Default(ctx))
 
+	if strings.Contains(opts.Chat, "/") {
+		split := strings.Split(opts.Chat, "/")
+		opts.Topics = split[1]
+		opts.Chat = split[0]
+	} else {
+		opts.Topics = ""
+	}
+
 	to, err := resolveDestPeer(ctx, manager, opts.Chat)
 	if err != nil {
 		return errors.Wrap(err, "get target peer")
@@ -57,7 +67,7 @@ func Run(ctx context.Context, c *telegram.Client, kvd kv.KV, opts Options) (rerr
 		Client:   pool.Default(ctx),
 		PartSize: viper.GetInt(consts.FlagPartSize),
 		Threads:  viper.GetInt(consts.FlagThreads),
-		Iter:     newIter(files, to, opts.Photo, opts.Remove),
+		Iter:     newIter(files, to, opts.Photo, opts.Remove, opts.Topics),
 		Progress: newProgress(upProgress),
 	}
 

@@ -22,16 +22,18 @@ type iter struct {
 	to     peers.Peer
 	photo  bool
 	remove bool
+	topics string
 
 	cur  int
 	err  error
 	file uploader.Elem
 }
 
-func newIter(files []*file, to peers.Peer, photo, remove bool) *iter {
+func newIter(files []*file, to peers.Peer, photo, remove bool, topics string) *iter {
 	return &iter{
 		files:  files,
 		to:     to,
+		topics: topics,
 		photo:  photo,
 		remove: remove,
 
